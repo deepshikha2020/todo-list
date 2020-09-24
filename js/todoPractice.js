@@ -5,11 +5,15 @@ const displayTasks = (tasks) => {
 	taskListUl.innerHTML = '';
 	if (tasks.length === 0) {
 		noTaskMessage();
+		deleteButton.disabled = true;
 	} else {
-		taskListUl.classList.remove('list-unstyled');
 		for (const task of tasks) {
+			if(task.status === true){
+				deleteButton.disabled = false;
+			}
 			displayTask(task.task, task.status);
 		}
+		
 	}
 }
 
@@ -18,28 +22,19 @@ const noTaskMessage = () => {
 	list.className = 'text-center font-italic ';
 	list.innerText = 'No Task Available';
 	taskListUl.appendChild(list);
-	taskListUl.classList.add('list-unstyled');
 }
 
 const displayTask = (data, status = false) => {
 	const list = document.createElement('li');
-	list.className = 'forHover border-bottom mt-2';
-	const textNode = document.createTextNode(data);
-	list.appendChild(textNode);
+	list.className = 'forHover border-bottom mt-2 text-break';
 	if (status === true) {
 		list.classList.add('text-removal-line');
 	}
 	taskListUl.appendChild(list);
 	userInput.value = '';
 	validateTaskText();
-	const editText = document.createElement('input');
-	editText.type = 'button';
-	editText.className = 'editTxt bg-light font-weight-lighter';
-	editText.value = 'EDIT';
-	editText.addEventListener('click', edit);
-	list.appendChild(editText);
 	const label = document.createElement('label');
-	label.className = 'custom-checkbox float-right';
+	label.className = 'custom-checkbox float-left';
 	const cb = document.createElement('input');
 	cb.type = 'checkbox';
 	cb.className = 'task-mark-complete';
@@ -50,6 +45,14 @@ const displayTask = (data, status = false) => {
 	label.appendChild(cb);
 	label.appendChild(span);
 	list.appendChild(label);
+	const textNode = document.createTextNode(data);
+	list.appendChild(textNode);
+	const editText = document.createElement('input');
+	editText.type = 'button';
+	editText.className = 'editTxt bg-light font-weight-lighter';
+	editText.value = 'EDIT';
+	editText.addEventListener('click', edit);
+	list.appendChild(editText);
 }
 
 
@@ -74,10 +77,12 @@ const checkedTasks = (event) => {
 	const index = Array.prototype.indexOf.call(taskListUl.childNodes, parentElm);
 	if (event.target.checked) {
 		parentElm.classList.add('text-removal-line');
+		deleteButton.disabled = false;
 		myTasks[index].status = true;
 	}
 	else {
 		parentElm.classList.remove('text-removal-line');
+		deleteButton.disabled = true;
 		myTasks[index].status = false;
 	}
 	localStorage.setItem('storedData', JSON.stringify(myTasks));
@@ -90,6 +95,7 @@ const removeCompletedTasks = () => {
 			myTasks.splice(i, 1);
 		}
 	}
+	deleteButton.disabled = true;
 	displayTasks(myTasks);
 	localStorage.setItem('storedData', JSON.stringify(myTasks));
 	cancelTask();
@@ -124,8 +130,10 @@ const validateTaskText = () => {
 	var data = userInput.value.replace(/^\s+|\s+$/gm, '');
 	if (data === '') {
 		addButton.disabled = true;
+		cancleButton.disabled = true;
 	} else {
 		addButton.disabled = false;
+		cancleButton.disabled = false;
 	}
 }
 
